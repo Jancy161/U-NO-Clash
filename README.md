@@ -1,4 +1,6 @@
 # U-NO!
+
+# Match cards, beat the bot, and have fun!
  U-NO!– A Fun Uno-Inspired Web Game
 Welcome to U-NO!, a stylish and interactive browser game inspired by the classic UNO card game. Play against a bot, pick colors, and enjoy the animations — all in one HTML file!
 
@@ -44,8 +46,6 @@ Open source images and GIFs – card textures and backgrounds
 
 
 
-🎮 **Live Demo**: [https://Jancy161.github.io/uno-clash](https://Jancy161.github.io/uno-clash)
-# Match cards, beat the bot, and have fun!
 
 
 
