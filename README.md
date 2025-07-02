@@ -44,7 +44,7 @@ Open source images and GIFs – card textures and backgrounds
 
 # Play Now!
 file:///C:/Users/jancy/Downloads/uno%20adv/index.html
-🎮 **Play Now**: [UNO Clash Live](https://jancy161.github.io/uno-clash/)
+🎮 **Play Now**: [UNO Clash Live](https://github.com/Jancy161/U-NO-Clash.git)
 
 
 
