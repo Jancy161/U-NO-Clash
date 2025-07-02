@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UNO Clash </title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #2e003e, #1f1f2e);
+      color: #ffffff;
+      background-image: url('https://www.easit.cz/wp-content/uploads/2021/06/casino-bg.jpg');
+      
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px #000;
+    }
+    #status {
+      font-size: 1.3rem;
+      margin: 15px 0;
+      font-weight: bold;
+      color: #ffd700;
+    }
+    .hand {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin: 10px 0;
+    }
+    .card {
+      width: 80px;
+      height: 120px;
+      border-radius: 10px;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: transform 0.2s ease;
+    }
+    .card:hover { transform: scale(1.05); }
+    .card.back {
+      background: #1c030371;
+      border: #000 solid 2px;
+      background-image: url('https://cdn3.iconfinder.com/data/icons/chat-bot-emoji-filled-color/300/141453384Untitled-3-128.png');
+      background-size: 70px ;
+      background-position: center;
+
+      color: #065f5d;
+      cursor: default;
+    }
+    .red { background: #e74c3c; 
+      border: #000 solid 2px;
+    background-image: url('https://cdn.shopify.com/s/files/1/1038/1798/files/red-color-shades.png?v=1681899351');
+    background-size: 30px;}
+    .blue { background: #3498db;
+      border: #000 solid 2px;
+    background-image: url('https://www.color-hex.com/palettes/62392.png');
+    background-size: 30px; }
+    .green { background: #27ae60;
+      border: #000 solid 2px;
+    background-image: url('https://www.color-hex.com/palettes/59815.png');
+    background-size: 30px; }
+    .yellow { background: #f1c40f;
+      border: #000 solid 2px; color: #000;
+    background-image: url('https://tse3.mm.bing.net/th/id/OIP.vOR6uNSEwrrexaz_ZOAKLQHaE8?pid=Api&P=0&h=180');
+    background-size: 30px; }
+    .black { background: #1e0126;
+    border: #000 solid 2px; }
+    .pile {
+      width: 90px;
+      height: 130px;
+      margin: 10px;
+      
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+      background: #361a03;
+      background-image: url('https://i.pinimg.com/originals/ab/14/0d/ab140d8d1d18988f4dc355c0be8b0cb4.gif');
+      background-size: cover;
+      cursor: pointer;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #320101;
+    }
+    #board {
+      margin: 20px 0;
+      background-color: rgba(66, 2, 59, 0.1);
+    }
+    #colorChoice {
+      margin: 20px auto;
+      padding: 10px;
+      background: #333;
+      border-radius: 10px;
+      width: fit-content;
+      box-shadow: 0 0 15px rgba(255,255,255,0.1);
+    }
+    .colorBtn {
+      width: 70px;
+      height: 45px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #000;
+      font-size: 1rem;
+    }
+    #winnerWatermark {
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 4rem;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px #f39c12;
+      z-index: 1000;
+      text-shadow: 2px 2px 8px #000;
+      animation: pulse 1s infinite alternate;
+    }
+    @keyframes pulse {
+      0% { transform: translate(-50%, -50%) scale(1); }
+      100% { transform: translate(-50%, -50%) scale(1.1); }
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>U-NO!</h1>
+  <div id="status">Loading...</div>
+  <div id="game">
+    <div>
+      <h3>Bot's Deck</h3>
+      <div id="botHand" class="hand"></div>
+    </div>
+    <div id="board">
+      <div id="drawPile" class="pile">📥<br/>DRAW</div>
+      <div id="discardPile" class="pile"></div>
+    </div>
+    <div>
+      <h3>Your Deck</h3>
+      <div id="playerHand" class="hand"></div>
+    </div>
+  </div>
+  <div id="colorChoice" class="hidden">
+    <h3>Choose a color:</h3>
+    <button class="colorBtn" data-color="red" style="background:red;">Red</button>
+    <button class="colorBtn" data-color="green" style="background:green;">Green</button>
+    <button class="colorBtn" data-color="blue" style="background:blue;">Blue</button>
+    <button class="colorBtn" data-color="yellow" style="background:gold;">Yellow</button>
+  </div>
+  <div id="winnerWatermark" class="hidden">UNO! 🎉</div>
+
+  <script>
+    const colors = ["red", "green", "blue", "yellow"];
+    const playerHand = document.getElementById("playerHand");
+    const botHand = document.getElementById("botHand");
+    const drawPile = document.getElementById("drawPile");
+    const discardPile = document.getElementById("discardPile");
+    const statusText = document.getElementById("status");
+    const colorChoice = document.getElementById("colorChoice");
+    const winnerWatermark = document.getElementById("winnerWatermark");
+
+    let deck = [];
+    let playerCards = [], botCards = [], currentCard = null, currentColor = "";
+    const drawSound = new Audio("https://www.soundjay.com/button/sounds/button-20.mp3");
+    const playSound = new Audio("https://www.soundjay.com/button/sounds/button-16.mp3");
+    const winSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-01.mp3");
+
+    function generateDeck() {
+      deck = [];
+      colors.forEach(color => {
+        for (let i = 0; i <= 9; i++) {
+          deck.push({ color, number: i });
+        }
+        deck.push({ color, number: "WILD" });
+      });
+      shuffle(deck);
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    function drawCard(hand) {
+      if (deck.length === 0) generateDeck();
+      hand.push(deck.pop());
+    }
+
+    function renderHands() {
+      playerHand.innerHTML = "";
+      playerCards.forEach((card, i) => {
+        const div = createCardDiv(card);
+        div.onclick = () => playCard(card, i, "player");
+        playerHand.appendChild(div);
+      });
+
+      botHand.innerHTML = "";
+      botCards.forEach(() => {
+        const div = document.createElement("div");
+        div.className = "card back";
+        botHand.appendChild(div);
+      });
+
+      discardPile.innerHTML = "";
+      if (currentCard) {
+        const div = createCardDiv(currentCard);
+        discardPile.appendChild(div);
+      }
+    }
+
+    function createCardDiv(card) {
+      const div = document.createElement("div");
+      div.className = "card " + card.color;
+      div.textContent = card.number === "WILD" ? "🎨 WILD" : card.number;
+      return div;
+    }
+
+    function isMatch(card) {
+      return card.color === currentColor || card.number === currentCard.number || card.number === "WILD";
+    }
+
+    function playCard(card, index, who) {
+      if (!isMatch(card)) return alert("You can't play this card!");
+      if (who === "player") {
+        playSound.play();
+        playerCards.splice(index, 1);
+        currentCard = card;
+        currentColor = card.color;
+        if (card.number === "WILD") {
+          showColorChoice();
+        } else {
+          statusText.textContent = `You played ${card.color} ${card.number}. Bot's turn...`;
+          renderHands();
+          setTimeout(botTurn, 1000);
+        }
+        checkWinner();
+      }
+    }
+
+    function botTurn() {
+      for (let i = 0; i < botCards.length; i++) {
+        if (isMatch(botCards[i])) {
+          playSound.play();
+          currentCard = botCards.splice(i, 1)[0];
+          currentColor = currentCard.color;
+          renderHands();
+          statusText.textContent = `Bot played ${currentCard.color} ${currentCard.number}. Your turn.`;
+          checkWinner();
+          return;
+        }
+      }
+      drawSound.play();
+      drawCard(botCards);
+      renderHands();
+      statusText.textContent = "Bot drew a card. Your turn.";
+    }
+
+    function showColorChoice() {
+      colorChoice.classList.remove("hidden");
+    }
+
+    function hideColorChoice() {
+      colorChoice.classList.add("hidden");
+    }
+
+    document.querySelectorAll(".colorBtn").forEach(btn => {
+      btn.onclick = () => {
+        currentColor = btn.dataset.color;
+        statusText.textContent = `You chose ${currentColor.toUpperCase()}! Bot's turn...`;
+        hideColorChoice();
+        renderHands();
+        setTimeout(botTurn, 1000);
+      };
+    });
+
+    drawPile.onclick = () => {
+      drawSound.play();
+      drawCard(playerCards);
+      renderHands();
+      const lastCard = playerCards[playerCards.length - 1];
+      if (isMatch(lastCard)) {
+        statusText.textContent = "You drew a playable card!";
+      } else {
+        statusText.textContent = "No match. Bot's turn.";
+        setTimeout(botTurn, 1000);
+      }
+    };
+
+    function checkWinner() {
+      if (playerCards.length === 0) {
+        winSound.play();
+        winnerWatermark.classList.remove("hidden");
+        statusText.textContent = "🎉 You won!";
+      } else if (botCards.length === 0) {
+        statusText.textContent = "Bot wins! 😞";
+      }
+    }
+
+    function init() {
+      generateDeck();
+      playerCards = [];
+      botCards = [];
+      for (let i = 0; i < 7; i++) {
+        drawCard(playerCards);
+        drawCard(botCards);
+      }
+      currentCard = deck.pop();
+      currentColor = currentCard.color;
+      renderHands();
+      statusText.textContent = "Your turn!";
+    }
+
+    init();
+  </script>
+</body>
+</html>
