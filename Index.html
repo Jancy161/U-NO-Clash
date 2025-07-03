@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>UNO Clash</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
       text-align: center;
@@ -46,26 +44,28 @@
       justify-content: center;
       align-items: center;
       font-weight: bold;
-      font-size: 16px;
+      font-size: 2px;
       cursor: pointer;
       box-shadow: 0 2px 8px rgba(0,0,0,0.4);
       transition: transform 0.2s ease;
+      text-align: center;
     }
     .card:hover { transform: scale(1.05); }
     .card.back {
       background: #1c030371;
-      border: #000 solid 2px;
+      border:  #f4a7a7 solid 5px;
       background-image: url('https://cdn3.iconfinder.com/data/icons/chat-bot-emoji-filled-color/300/141453384Untitled-3-128.png');
       background-size: 40px;
       background-position: center;
       color: #065f5d;
       cursor: default;
     }
-    .red { background: #e74c3c; border: 2px solid #000; background-image: url('https://cdn.shopify.com/s/files/1/1038/1798/files/red-color-shades.png?v=1681899351'); background-size: 25px;}
-    .blue { background: #3498db; border: 2px solid #000; background-image: url('https://www.color-hex.com/palettes/62392.png'); background-size: 25px; }
-    .green { background: #27ae60; border: 2px solid #000; background-image: url('https://www.color-hex.com/palettes/59815.png'); background-size: 25px; }
-    .yellow { background: #f1c40f; border: 2px solid #000; color: #000; background-image: url('https://tse3.mm.bing.net/th/id/OIP.vOR6uNSEwrrexaz_ZOAKLQHaE8?pid=Api&P=0&h=180'); background-size: 25px; }
-    .black { background: #1e0126; border: 2px solid #000; }
+    .red { background: #e74c3c; border: 5px solid #f4a7a7; background-image: url('https://cdn.shopify.com/s/files/1/1038/1798/files/red-color-shades.png?v=1681899351'); background-size: 25px;}
+    .blue { background: #3498db; border: 5px solid #f4a7a7; background-image: url('https://www.color-hex.com/palettes/62392.png'); background-size: 25px; }
+    .green { background: #27ae60; border: 5px solid #f4a7a7; background-image: url('https://www.color-hex.com/palettes/59815.png'); background-size: 25px; }
+    .yellow { background: #f1c40f; border: 5px solid #f4a7a7; background-image: url('https://tse3.mm.bing.net/th/id/OIP.vOR6uNSEwrrexaz_ZOAKLQHaE8?pid=Api&P=0&h=180'); background-size: 25px; }
+    .black { background: #1e0126; border: 5px solid #f4a7a7; }
+
 
     .pile {
       width: 70px;
@@ -134,14 +134,8 @@
       100% { transform: translate(-50%, -50%) scale(1.1); }
     }
 
-    .hidden {
-      display: none;
-    }
-
-    h3 {
-      margin: 10px 0 5px;
-      font-size: 1.2rem;
-    }
+    .hidden { display: none; }
+    h3 { margin: 10px 0 5px; font-size: 1.2rem; }
 
     @media (min-width: 768px) {
       .card { width: 80px; height: 120px; font-size: 24px; }
@@ -176,7 +170,7 @@
     <button class="colorBtn" data-color="yellow" style="background:gold;">Yellow</button>
   </div>
 
-  <div id="winnerWatermark" class="hidden">UNO! 🎉</div>
+  <div id="winnerWatermark" class="hidden">U-NO! 🎉</div>
 
   <script>
     const colors = ["red", "green", "blue", "yellow"];
@@ -201,6 +195,8 @@
           deck.push({ color, number: i });
         }
         deck.push({ color, number: "WILD" });
+        deck.push({ color, number: "SKIP" });
+        deck.push({ color, number: "REVERSE" });
       });
       shuffle(deck);
     }
@@ -240,11 +236,26 @@
     }
 
     function createCardDiv(card) {
-      const div = document.createElement("div");
-      div.className = "card " + card.color;
-      div.textContent = card.number === "WILD" ? "🎨 WILD" : card.number;
-      return div;
-    }
+  const div = document.createElement("div");
+  div.className = "card " + card.color;
+
+  if (card.number === "WILD") {
+    div.textContent = "🎨 WILD";
+    div.style.fontSize = "18px";
+  } else if (card.number === "SKIP") {
+    div.textContent = "⛔ SKIP";
+    div.style.fontSize = "18px";
+  } else if (card.number === "REVERSE") {
+    div.textContent = "🔁 REVERSE";
+    div.style.fontSize = "13px"; // Smaller font for Reverse card
+  } else {
+    div.textContent = card.number;
+    div.style.fontSize = "22px";
+  }
+
+  return div;
+}
+
 
     function isMatch(card) {
       return card.color === currentColor || card.number === currentCard.number || card.number === "WILD";
@@ -252,16 +263,23 @@
 
     function playCard(card, index, who) {
       if (!isMatch(card)) return alert("You can't play this card!");
+      playSound.play();
+
       if (who === "player") {
-        playSound.play();
         playerCards.splice(index, 1);
         currentCard = card;
         currentColor = card.color;
+
+        renderHands();
+
         if (card.number === "WILD") {
           showColorChoice();
+        } else if (card.number === "SKIP" || card.number === "REVERSE") {
+          statusText.textContent = `You played ${card.number}! Bot's turn skipped.`;
+          checkWinner();
+          return;
         } else {
           statusText.textContent = `You played ${card.color} ${card.number}. Bot's turn...`;
-          renderHands();
           setTimeout(botTurn, 1000);
         }
         checkWinner();
@@ -275,11 +293,19 @@
           currentCard = botCards.splice(i, 1)[0];
           currentColor = currentCard.color;
           renderHands();
+
+          if (currentCard.number === "SKIP" || currentCard.number === "REVERSE") {
+            statusText.textContent = `Bot played ${currentCard.number}! Your turn is skipped.`;
+            checkWinner();
+            return;
+          }
+
           statusText.textContent = `Bot played ${currentCard.color} ${currentCard.number}. Your turn.`;
           checkWinner();
           return;
         }
       }
+
       drawSound.play();
       drawCard(botCards);
       renderHands();
