@@ -20,15 +20,27 @@ Welcome to U-NO!, a stylish and interactive browser game inspired by the classic
 
 
 # How to Play
---> You and the bot start with 7 cards.
+--> Each player starts with 7 cards.
 
---> Click a card from your deck if it matches the color or number of the top card on the discard pile.
+--> The top card from the deck is placed in the discard pile.
 
---> If you draw a wild card, select a color using the popup.
+--> On your turn, you can play a card that matches the color or number/type of the current discard.
 
---> Use the DRAW pile if you can't play.
+--> If you can't play, you must draw a card.
 
 --> First to discard all cards wins!
+
+# Special Cards Rules
+🎨 WILD
+Lets you choose the color to continue the game.
+
+⛔ SKIP
+When played, the next player loses their turn.
+
+🔁 REVERSE
+In a two-player game (you vs bot), Reverse acts like a Skip (the turn goes back to the same player).
+In multiplayer, it would reverse the direction of play.
+
 
 # Techstack
 HTML5 – structure
